@@ -1,47 +1,32 @@
-use std::collections::HashMap;
-
 struct Solution;
 impl Solution {
-    // For each side, need to find entries that sum up to a side
-    // If I knew it was exactly two entries, could do the complement trick from 0001
-    // I just need to find ONE subsum, so can try and adapt https://www.geeksforgeeks.org/subset-sum-problem-dp-25/
-    fn findsubsum(nums: &[i32], target: i32) -> Option<Vec<usize>> {
-        // Key is subsum, value is list of indices to build key
-        let mut subset: HashMap<i32, Vec<usize>> = HashMap::new();
-        subset.insert(0, vec![]); // Base case
+    fn dfs(nums: &Vec<i32>, sides: &mut Vec<i32>, length: i32, index: usize) -> bool {
+        // Base case: If last element, 3 sides must have been completed
+        if index == nums.len() {
+            println!("Base case returning");
+            return sides[0] == length && sides[1] == length && sides[2] == length;
+        }
 
-        for i in 0..nums.len() {
-            let val = nums[i];
-
-            for subsum in 1..target+1 {
-                let subsum = subsum as i32;
-
-                if subset.contains_key(&subsum) {
-                    //println!("Index: {} (val: {}) subsum: {} subset: {:?}... skipping", i, val, subsum, subset);
-                    continue;
+        // Try adding current stick to each side in turn
+        // If recursive call is true, solution is good so keep unwinding
+        // Otherwise, keep trying next side and return false when all sides fail
+        let val = nums[index];
+        println!("Index: {:?} (val {}) Current sides: {:?}", index, val, sides);
+        for i in 0..4 {
+            if sides[i] + val <= length {
+                println!("Trying index {} (val {}) to side {}", index, val, i);
+                sides[i] += val;
+                if Solution::dfs(nums, sides, length, index+1) {
+                    println!("Unwrapping index {}", index);
+                    return true
                 }
-
-                let remainder = subsum - val;
-                if let Some(ssindex) = subset.get(&remainder) {
-                    if !ssindex.contains(&i) { // Avoid repeats
-                        let mut index = ssindex.clone();
-                        index.push(i);
-
-                        if subsum == target {
-                            //println!("Index: {} (val: {}) subsum: {} subset: {:?}... returning", i, val, subsum, subset);
-                            return Some(index)
-                        } else {
-                            subset.insert(subsum, index);    
-                        }
-                    }
-                } // end if let Some(ssindex)
-
-                //println!("Index: {} (val: {}) subsum: {} subset: {:?}", i, val, subsum, subset);
-            } // end for subsum
+                println!("Unwrapped back to index {}", index);
+                sides[i] -= val;
+            } // end if sides[i]
         } // end for i
 
-        subset.remove(&target)
-    } // end fn findsubsum
+        return false
+    }
 
     pub fn makesquare(mut nums: Vec<i32>) -> bool {
         let length: i32 = (nums.iter().sum::<i32>()) / 4;
@@ -51,39 +36,31 @@ impl Solution {
             return false
         }
 
-        for side in 0..4 {
-            match Solution::findsubsum(&nums[..], length) {
-                None => {
-                    return false
-                },
-                Some(indices) => {
-                    println!("Found {:?} for side {}", indices, side);
-                    for i in indices.iter().rev() {
-                        nums.remove(*i);
-                    }                    
-                }
-            }
-        }
+        // O(NlogN) sort to descending (cheap for 15 elements)
+        nums.sort_unstable_by(|a, b| b.cmp(a));
 
-        true
+        // Depth-first search
+        let mut sides: Vec<i32> = vec![0; 4];
+        sides[0] = nums[0]; // Can assign first element to one side to skip outer recursion loop
+        Solution::dfs(&nums, &mut sides, length, 1)
     }
 }
 
 fn main() {
-    let input = vec![1,1,2,2,2];
-    println!("Testing {:?}...", input);
-    let output = Solution::makesquare(input);
-    println!("Expected true, got {}", output);
+    //let input = vec![1,1,2,2,2];
+    //println!("Testing {:?}...", input);
+    //let output = Solution::makesquare(input);
+    //println!("Expected true, got {}", output);
 
-    let input = vec![3,3,3,3,4];
-    println!("Testing {:?}...", input);
-    let output = Solution::makesquare(input);
-    println!("Expected false, got {}", output);
+    //let input = vec![3,3,3,3,4];
+    //println!("Testing {:?}...", input);
+    //let output = Solution::makesquare(input);
+    //println!("Expected false, got {}", output);
 
-    let input = vec![];
-    println!("Testing {:?}...", input);
-    let output = Solution::makesquare(input);
-    println!("Expected false, got {}", output);
+    //let input = vec![];
+    //println!("Testing {:?}...", input);
+    //let output = Solution::makesquare(input);
+    //println!("Expected false, got {}", output);
 
     let input = vec![5,5,5,5,4,4,4,4,3,3,3,3];
     println!("Testing {:?}...", input);
