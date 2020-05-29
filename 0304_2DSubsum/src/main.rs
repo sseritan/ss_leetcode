@@ -1,5 +1,5 @@
 struct NumMatrix {
-    mat: Vec<Vec<i32>>,
+    row_sums: Vec<Vec<i32>>,
 }
 
 /** 
@@ -8,19 +8,34 @@ struct NumMatrix {
  */
 impl NumMatrix {
 
+    // Only store cummulative for rows
+    // O(N^2) memory and O(N^2) initialize time
     fn new(matrix: Vec<Vec<i32>>) -> Self {
+        let mut sums = vec![];
+        for row in matrix {
+            let mut sum = 0;
+            let mut row_sum = vec![0];
+
+            for elem in row {
+                sum += elem;
+                row_sum.push(sum);
+            }
+
+            sums.push(row_sum);
+        }
+
         NumMatrix {
-            mat: matrix.clone()
+            row_sums: sums
         }
     }
     
-    // For now, do brute force
+    // Calculate interval for each row based on difference in cummulative
+    // Is only O(N) per request over O(N^2) brute force
     fn sum_region(&self, row1: i32, col1: i32, row2: i32, col2: i32) -> i32 {
         let mut sum = 0;
         for r in row1..row2+1 {
-            for c in col1..col2+1 {
-                sum += self.mat[r as usize][c as usize];
-            }
+            let row_sum = &self.row_sums[r as usize];
+            sum += row_sum[(col2 + 1) as usize] - row_sum[col1 as usize];
         }
         sum
     }
@@ -56,4 +71,7 @@ fn main() {
     test(&obj, 1, 1, 2, 2, 11);
     test(&obj, 1, 2, 2, 4, 12);
     test(&obj, 4, 4, 4, 4, 5);
+
+    let obj2 = NumMatrix::new(vec![vec![-1]]);
+    test(&obj2, 0, 0, 0, 0, -1);
 }
