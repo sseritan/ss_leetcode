@@ -60,7 +60,6 @@ use std::cell::RefCell;
 struct Solution;
 impl Solution {
     pub fn invert_tree(root: Option<Rc<RefCell<TreeNode>>>) -> Option<Rc<RefCell<TreeNode>>> {
-        // Base case recursion
         match root {
             Some(ref node) => {
                 let inv_left = Solution::invert_tree(node.borrow().left.clone());
@@ -76,6 +75,7 @@ impl Solution {
 }
 
 pub fn run() {
+    println!("Day 1: Binary Tree Inversion");
     let mut root = TreeNode::new(4);
     let mut left = TreeNode::new(2);
     left.left = Some(Rc::new(RefCell::new(TreeNode::new(1))));
@@ -86,9 +86,11 @@ pub fn run() {
     right.right = Some(Rc::new(RefCell::new(TreeNode::new(9))));
     root.right = Some(Rc::new(RefCell::new(right)));
 
+    println!("Original tree:");
     let tree = Some(Rc::new(RefCell::new(root)));
     print_tree(&tree);
 
+    println!("Inverted tree:");
     let inv_tree = Solution::invert_tree(tree);
     print_tree(&inv_tree);
 }
