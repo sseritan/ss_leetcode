@@ -1,4 +1,5 @@
-# Annoyingly, no Rust of this. Will do my submission in Py3, then go back for Rust
+# Annoyingly, no Rust of this, probably because ownership is super janky
+# Will do my submission in Py3
 
 # Definition for singly-linked list.
 class ListNode:
