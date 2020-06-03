@@ -1,6 +1,6 @@
 #[macro_use] extern crate text_io;
 
-mod day1;
+mod day1; mod day3;
 
 fn main() {
     println!("Select day to run from June challenge: ");
@@ -10,6 +10,7 @@ fn main() {
     match day {
         1 => day1::run(),
         2 => println!("Day 2 not available in Rust, see day2.py."),
+        3 => day3::run(),
         v => println!("Day {} challenge not available!", v),
     }
 }
