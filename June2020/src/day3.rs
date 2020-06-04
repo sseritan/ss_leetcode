@@ -63,6 +63,8 @@ fn test3() {
 }
 
 pub fn run() {
+    println!("Day 3: Two City Scheduling");
+    
     test1();
     test2();
     test3();
